@@ -19,7 +19,7 @@
       <video autoplay muted loop playsinline poster="/static/soundsdelicious-header.jpg">
         <source src="/static/soundsdelicious-header-animated.mp4" type="video/mp4">
       </video>
-      <div class="header__logo"><img src="/static/Untitled-1.png" alt=""></div>
+      <div class="header__logo"><img src="/static/soundsdelicious-newlogo.png" alt=""></div>
       <div class="header__scroll" @click="scrollToApp"></div>
     </div>
 

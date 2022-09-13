@@ -1,0 +1,236 @@
+.general-music-player {
+  display: block;
+  position: fixed;
+  bottom: 0;
+  background-color: #f4922c;
+  opacity: 1;
+  min-height: 50px;
+  width: 100%;
+  margin-right: 50px;
+  z-index: 100;
+  color: white;
+}
+
+/* #container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+.play-pause-music-player {
+  padding-right: 10px;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  min-width: 500px;
+  max-height: 50px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.titles_container {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  min-width: 250px;
+} 
+
+.song_title {
+  margin: 0px 30px;
+  width: fit-content;
+}
+
+.wavesurfer {
+  min-width: 500px;
+  min-height: 50px;
+  margin-top: 20px;
+}
+
+.actual-duration {
+  margin-left: 20px;
+}
+
+.progress {
+  min-width: 400px;
+}
+
+.timer {
+  display: flex;
+  flex-direction: row;
+}
+
+.interact {
+  margin-left: 40px;
+}
+
+.interact-music-player {
+  margin-left: 20px;
+}
+
+.download_icon {
+  color: white;
+  margin-bottom: 11px;
+}
+
+.volume-controller {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-left: 50px;
+}
+
+.volume-up {
+  margin-bottom: 11px;
+  margin-right: 3px;
+}
+
+.slider-volume {
+  height: 38px;
+  -webkit-appearance: none;
+  margin: 10px 0;
+  width: 100px;
+  background-color: transparent;
+}
+
+.slider-volume:focus {
+  outline: none;
+}
+
+.slider-volume::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #000000;
+}
+.slider-volume::-webkit-slider-thumb {
+  box-shadow: 1px 1px 1px #000000;
+  border: 1px solid #000000;
+  height: 15px;
+  width: 15px;
+  border-radius: 7.5px;
+  background: white;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -6px;
+}
+.slider-volume:focus::-webkit-slider-runnable-track {
+  background: white;
+}
+.slider-volume::-moz-range-track {
+  width: 100%;
+  height: 10px;
+  cursor: pointer;
+  background: transparent;
+}
+.slider-volume::-moz-range-thumb {
+  height: 30px;
+  width: 15px;
+  background: transparent;
+  cursor: pointer;
+}
+.slider-volume::-ms-track {
+  width: 100%;
+  height: 10px;
+  cursor: pointer;
+  background: transparent;
+  color: transparent;
+}
+.slider-volume::-ms-fill-lower {
+  background: transparent;
+}
+.slider-volume::-ms-fill-upper {
+  background: transparent;
+}
+
+.slider-volume::-ms-thumb {
+  margin-top: 1px;
+  height: 30px;
+  width: 15px;
+  background: transparent;
+  cursor: pointer;
+}
+.slider-volume:focus::-ms-fill-lower {
+  background: transparent;
+}
+.slider-volume:focus::-ms-fill-upper {
+  background: transparent;
+}
+
+
+@media (min-width: 600px) and (max-width: 1100px) {
+  .volume-controller {
+    display: none;
+  }
+
+  .actual-duration {
+    margin: 0
+  }
+
+  .timer {
+    margin-left: 20px;
+  }
+
+  .wavesurfer-container {
+    max-width: 300px;
+    overflow: hidden;
+  }
+  
+  .wavesurfer {
+    max-width: 300px;
+  } 
+
+  .wave {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .wavesurfer-container {
+    display: none;
+  }
+  .titles_container {
+    margin-left: -20px;
+    min-width: 200px;
+    justify-content: left;
+    align-items: left;
+  }
+  .volume-controller {
+    display: none;
+  }
+  .interact-music-player {
+    display: none;
+  }
+  .container {
+    padding: 0;
+    margin-right: 0;
+    justify-content: left;
+    align-items: left;
+    width: 100%;
+  }
+  .play-pause-music-player {
+    margin-left: 24px;
+    padding: 0;
+  }
+  .timer {
+    margin-left: 0px;
+  }
+  .actual-duration {
+    margin: 0
+  }
+  .progress {
+    min-width: 80px;
+  }
+  .song_title {
+    margin: 0px 0px 0 40px;
+    width: 190px;
+  }
+}

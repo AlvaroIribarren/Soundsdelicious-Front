@@ -22,10 +22,10 @@
         </div>
       </div>
       <div>
-        <div class="wavesurfer-container" v-show="this.finishedLoading">
+        <div class="wavesurfer-container" v-show="this.currentLoadingPercentage === 100">
           <div id="player" class="wavesurfer"></div>
         </div>
-        <div v-show="!this.finishedLoading" class="progress">
+        <div v-show="this.currentLoadingPercentage < 100" class="progress">
           <b-progress 
             :value="this.currentLoadingPercentage" 
             :variant="this.loadingError ? 'danger' : ''"
@@ -35,7 +35,7 @@
           />
         </div>
       </div>
-      <div class="timer" v-show="this.finishedLoading">
+      <div class="timer" v-show="this.currentLoadingPercentage === 100">
         <div class="actual-duration">
           {{ this.currentTime === 0 ? '00:00' : this.currentTime }}
         </div>
@@ -97,7 +97,6 @@ export default {
       isPlaying: true,
       currentTime: '00:00',
       currentLoadingPercentage: 0,
-      finishedLoading: false,
       loadingError: false,
       meta: {
         playedOnce: false,
@@ -116,7 +115,7 @@ export default {
   props: ['song', 'wavePlaying', 'vol'],
   watch: {
     song: function (newVal, oldVal) {
-      this.finishedLoading = false
+      this.currentLoadingPercentage = 0
       this.loadingError = false
       this.song = newVal
       this.wave.destroy()
@@ -186,7 +185,6 @@ export default {
         this.meta.duration = this.secondsToDuration(s)
         this.wave.setVolume(this.vol)
         this.triggerPlayPause()
-        this.finishedLoading = true
         this.currentLoadingPercentage = 100
       })
       this.wave.on('play', () => {
@@ -194,7 +192,6 @@ export default {
       this.wave.on('pause', () => {
       })
       this.wave.on('loading', (percentage) => {
-        this.finishedLoading = false
         this.currentLoadingPercentage = percentage
       })
       this.wave.on('error', () => {

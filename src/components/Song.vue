@@ -161,8 +161,11 @@ export default {
         backgroundColor: 'transparent',
         barWidth: 2,
         height: 26,
+        hideCursor: true,
+        cursorWidth: 0,
         fillParent: true,
-        normalize: true
+        normalize: true,
+        interact: false
       })
     },
 

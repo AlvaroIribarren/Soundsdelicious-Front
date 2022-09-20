@@ -257,7 +257,6 @@ export default {
       // make request for term equivalences
       this.axios.get('/terms')
         .then((res) => {
-          console.log(res.data)
           this.termEquivalences = res.data.termEquivalences
         })
       // compute filter data from song
@@ -376,7 +375,6 @@ export default {
           // also allow equivalences here
           return filterSet.every(filterData => {
             const filterDataAndEquivalences = this.filtersGetTermEquivalences(filterData)
-            console.log('Filtering for:', filterDataAndEquivalences)
             return filterDataAndEquivalences.some(filterData =>
               song[filter].includes(filterData)
             )
@@ -396,7 +394,6 @@ export default {
     selectSongs () {
       this.selectedSongs = this.songs
       .filter(this.filtersMatch)
-      console.log(this.selectedSongs)
     },
 
     /**

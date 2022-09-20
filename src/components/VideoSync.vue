@@ -102,7 +102,6 @@ export default {
     },
 
     restartVideoFromBeginning () {
-      console.log('hey')
       this.videoNode.pause()
       this.videoNode.currentTime = 0
       this.videoNode.play()

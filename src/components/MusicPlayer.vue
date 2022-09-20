@@ -116,7 +116,6 @@ export default {
   props: ['song', 'wavePlaying', 'vol'],
   watch: {
     song: function (newVal, oldVal) {
-      console.log('Song changed')
       this.finishedLoading = false
       this.loadingError = false
       this.song = newVal
@@ -191,10 +190,8 @@ export default {
         this.currentLoadingPercentage = 100
       })
       this.wave.on('play', () => {
-        console.log('Le diste play')
       })
       this.wave.on('pause', () => {
-        console.log('Le diste pause')
       })
       this.wave.on('loading', (percentage) => {
         this.finishedLoading = false

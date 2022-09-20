@@ -161,10 +161,22 @@ export default {
         backgroundColor: 'transparent',
         barWidth: 2,
         height: 26,
-        fillParent: true
+        fillParent: true,
+        normalize: true
       })
     },
 
+    getPeaks () {
+      this.axios.get(`/songs-peaks/${this.song.title}/${this.song.title}.json`)
+        .then(peaks => {
+          const empty = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjM2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU2LjQxAAAAAAAAAAAAAAAAJAAAAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA//MUZAAAAAGkAAAAAAAAA0gAAAAATEFN//MUZAMAAAGkAAAAAAAAA0gAAAAARTMu//MUZAYAAAGkAAAAAAAAA0gAAAAAOTku//MUZAkAAAGkAAAAAAAAA0gAAAAANVVV'
+          this.wave.load(empty, peaks.data.data)
+          this.wave.drawBuffer()
+        })
+        .catch((err) => {
+          console.log(`Error in ${this.song.title} ${err}`)
+        })
+    },
     loadTrack () {
       const path = this.link('.mp3')
       const pathWav = path.replace('mp3', 'wav')
@@ -179,25 +191,7 @@ export default {
       this.meta.playedOnce = false
       this.toLoad = this.meta.usesWav ? pathWav : path
       // Load appropriate track (default: mp3) with peaks
-      /*
-        this.axios.get(`/songs-peaks/${this.song.title}/${this.song.title}.json`)
-          .then(peaks => {
-            const requiredPeaks = hasPeaks ? peaks.data.data : null
-            this.wave.song = songPath
-            this.wave.backend.peaks = requiredPeaks
-            this.wave.loaded = false
-            if (hasPeaks) {
-              this.wave.loadMediaElement(
-                this.wave.song,
-                this.wave.backend.peaks,
-                true,
-                this.wave.getDuration()
-              )
-              this.wave.drawBuffer()
-            }
-          })
-      } else: */
-      // this.wave.load(this.meta.usesWav ? pathWav : path)
+      this.getPeaks()
       this.wave.on('ready', () => {
         const s = Math.floor(this.wave.getDuration())
         this.meta.duration = this.secondsToDuration(s)

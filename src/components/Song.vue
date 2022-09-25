@@ -3,11 +3,12 @@
     <div class="player">
       <div class="play-pause">
         <div class="icon" ref="playButton" @click="triggerPlayPause()">
-          <div v-show="!meta.isPlaying" class="i-play">
+          <div class="i-play">
             <i class="material-icons">play_arrow</i>
-          </div><div v-show="meta.isPlaying" class="i-pause">
-            <i class="material-icons">pause</i>
           </div>
+          <!-- <div v-show="meta.isPlaying" class="i-pause">
+            <i class="material-icons">pause</i>
+          </div> -->
         </div>
       </div>
       <div class="header">
@@ -45,7 +46,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 import { $bus } from './EventBus.js'
 import { BDropdown } from 'bootstrap-vue'
 import wavesurfer from 'wavesurfer.js'
@@ -150,14 +151,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setPlaybackInfo']),
-
     createTrack () {
       return wavesurfer.create({
         container: '.wave-' + this.song._id,
         backend: 'MediaElement',
         waveColor: '#dbe6e8',
-        progressColor: '#2433D9',
+        progressColor: '#dbe6e8',
         backgroundColor: 'transparent',
         barWidth: 2,
         height: 26,
@@ -215,7 +214,7 @@ export default {
       // } else {
       //   this.setPlaybackInfo({ state: 'play', current: this.song.num_id })
       // }
-      // this.meta.isPlaying = !this.meta.isPlaying
+      this.meta.isPlaying = !this.meta.isPlaying
       this.emitPlaySong()
     },
 

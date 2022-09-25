@@ -84,6 +84,7 @@
 import wavesurfer from 'wavesurfer.js'
 import { BProgress, BDropdown } from 'bootstrap-vue'
 import { $bus } from './EventBus.js'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'music-player',
@@ -131,6 +132,8 @@ export default {
   computed: {
   },
   methods: {
+    ...mapActions(['setPlaybackInfo']),
+
     link (suffix) {
       return `${this.meta.songsDir}/${this.song.title}/${this.song.title}${suffix}`
     },
@@ -151,6 +154,12 @@ export default {
       else return 'success'
     },
     triggerPlayPause () {
+      if (this.isPlaying) {
+        this.setPlaybackInfo({ state: 'pause', current: this.song.num_id })
+      } else {
+        this.setPlaybackInfo({ state: 'play', current: this.song.num_id })
+      }
+
       if (this.isPlaying) this.pause()
       else this.play()
     },

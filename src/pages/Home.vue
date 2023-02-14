@@ -28,9 +28,11 @@
           type="video/mp4"
         />
       </video>
-      <div class="header__logo">
-        <img src="/static/soundsdelicious-newlogo.png" alt="" />
-      </div>
+      <!--
+        <div class="header__logo">
+          <img src="/static/soundsdelicious-newlogo.png" alt="" />
+        </div>
+      -->
       <div class="header__scroll" @click="scrollToApp"></div>
     </div>
 

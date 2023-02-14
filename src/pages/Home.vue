@@ -15,15 +15,26 @@
 <template>
   <div id="app" :class="appClass">
     <!-- <span @click="meta.isFaqOpen = true" title="FAQ"><i class="icon-faq"></i></span> -->
-    <div class="main-header">
-      <video autoplay muted loop playsinline poster="/static/soundsdelicious-header.jpg">
-        <source src="/static/soundsdelicious-header-animated.mp4" type="video/mp4">
+    <div :class="headerClass">
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        poster="/static/soundsdelicious-header.jpg"
+      >
+        <source
+          src="/static/soundsdelicious-header-animated.mp4"
+          type="video/mp4"
+        />
       </video>
-      <div class="header__logo"><img src="/static/soundsdelicious-newlogo.png" alt=""></div>
+      <div class="header__logo">
+        <img src="/static/soundsdelicious-newlogo.png" alt="" />
+      </div>
       <div class="header__scroll" @click="scrollToApp"></div>
     </div>
 
-    <div class="page-container">
+    <div class="page-container" v-on:wheel="onPastHeaderScroll">
       <Sidebar
         ref="sidebar"
         :filters="filters"
@@ -42,8 +53,12 @@
       <div class="main-content">
         <div class="songs-container">
           <video-sync />
-  
-          <Playlist :playlist="playlist" ref="Playlist" :is-viewing-playlist="isViewingPlaylist" />
+
+          <Playlist
+            :playlist="playlist"
+            ref="Playlist"
+            :is-viewing-playlist="isViewingPlaylist"
+          />
           <div class="songs" v-show="meta.areSongsVisible">
             <div class="wrap">
               <h1 class="songs__title">Songs</h1>
@@ -74,21 +89,25 @@
                 </div>
               </div>
               <div class="downloader" v-show="isViewingPlaylist">
-                <span @click.prevent="downloadAllSelected('mp3')">Download<br>All<br><i class="material-icons">file_download</i></span>
+                <span @click.prevent="downloadAllSelected('mp3')"
+                  >Download<br />All<br /><i class="material-icons"
+                    >file_download</i
+                  ></span
+                >
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
 
-
-
-    <div class="modal-bg"
+    <div
+      class="modal-bg"
       v-show="meta.isContactOpen || meta.isFaqOpen"
-      @click="meta.isContactOpen = false; meta.isFaqOpen = false"
+      @click="
+        meta.isContactOpen = false;
+        meta.isFaqOpen = false;
+      "
     ></div>
     <div class="modal modal--large modal--faq" v-show="meta.isFaqOpen">
       <div v-html="content.faq" />
@@ -96,10 +115,12 @@
     </div>
     <div class="modal modal--contact" v-show="meta.isContactOpen">
       <h1>Contact</h1>
-      <div v-if="meta.isContactSubmitted" class="note">Successfully sent, thank you!</div>
+      <div v-if="meta.isContactSubmitted" class="note">
+        Successfully sent, thank you!
+      </div>
       <form @submit.prevent="submitContact" v-if="!meta.isContactSubmitted">
-        <input type="email" v-model="contact.email" placeholder="Email">
-        <input type="text" v-model="contact.subject" placeholder="Subject">
+        <input type="email" v-model="contact.email" placeholder="Email" />
+        <input type="text" v-model="contact.subject" placeholder="Subject" />
         <textarea v-model="contact.body" placeholder="Message"></textarea>
         <button class="lbtn">Send Message</button>
       </form>
@@ -110,33 +131,33 @@
 
     <Loading :active.sync="meta.isLoadingZip" />
     <div class="music-player" v-if="this.actualPlayingSong">
-        <music-player
-          :song="this.actualPlayingSong"    
-          :wavePlaying="this.actualPlayingWave"      
-          :vol="audioVolume"
-        />
-      </div>
+      <music-player
+        :song="this.actualPlayingSong"
+        :wavePlaying="this.actualPlayingWave"
+        :vol="audioVolume"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import dl from 'downloadjs'
-import { BDropdown } from 'bootstrap-vue'
+import dl from "downloadjs";
+import { BDropdown } from "bootstrap-vue";
 
-import Loading from 'vue-loading-overlay'
-import 'vue-loading-overlay/dist/vue-loading.min.css'
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/vue-loading.min.css";
 
-import { $bus } from '@/components/EventBus.js'
-import Search from '@/components/Search'
-import Playlist from '@/components/Playlist'
-import Song from '@/components/Song'
-import Sidebar from '@/components/Sidebar'
-import VideoSync from '@/components/VideoSync'
-import KeyInput from '@/components/KeyInput'
-import MusicPlayer from '../components/MusicPlayer.vue'
+import { $bus } from "@/components/EventBus.js";
+import Search from "@/components/Search";
+import Playlist from "@/components/Playlist";
+import Song from "@/components/Song";
+import Sidebar from "@/components/Sidebar";
+import VideoSync from "@/components/VideoSync";
+import KeyInput from "@/components/KeyInput";
+import MusicPlayer from "../components/MusicPlayer.vue";
 
 export default {
-  name: 'home',
+  name: "home",
   components: {
     Search,
     Playlist,
@@ -145,27 +166,28 @@ export default {
     VideoSync,
     KeyInput,
     Loading, // third party
-    'b-dropdown': BDropdown,
+    "b-dropdown": BDropdown,
     MusicPlayer
   },
-  data () {
+  data() {
     return {
+      showHeader: true,
       loading: true,
-      filters: ['genre', 'primary_keywords', 'instruments'],
+      filters: ["genre", "primary_keywords", "instruments"],
       songs: [],
       songsLoaded: [],
       maxSongsInMemory: 10,
       selectedSongs: [], // songs that have been selected by filtering
       filterSet: {}, // filter tree with their data in "true" or "false"
-      term: '', // search term
+      term: "", // search term
       songsNum: 20,
       playlist: [],
       isViewingPlaylist: false,
-      actualPlayingWave: '',
+      actualPlayingWave: "",
       actualPlayingSong: null,
       audioVolume: 1,
       content: {
-        faq: ''
+        faq: ""
       },
       meta: {
         isLoadingZip: false,
@@ -176,330 +198,349 @@ export default {
         songsLeft: true
       },
       contact: {
-        email: '',
-        subject: '',
-        body: ''
+        email: "",
+        subject: "",
+        body: ""
       },
       termEquivalences: []
-    }
+    };
   },
   computed: {
-    appClass () {
+    appClass() {
       return {
-        'app--is-viewing-playlist': this.isViewingPlaylist
-      }
+        "app--is-viewing-playlist": this.isViewingPlaylist
+      };
     },
-    namedFilters () {
-      const names = ['Genre', 'Keywords', 'Instruments']
-      const named = {}
+    headerClass() {
+      return {
+        "main-header": true,
+        hidden: !this.showHeader
+      };
+    },
+    namedFilters() {
+      const names = ["Genre", "Keywords", "Instruments"];
+      const named = {};
 
       this.filters.forEach((filter, i) => {
-        named[filter] = names[i]
-      })
+        named[filter] = names[i];
+      });
 
-      return named
+      return named;
     },
-    filterSelections () {
+    filterSelections() {
       // Display filters with their selected info like
       // Selected: XYZ (Mood), ABC (Energy); Excluded: foo (Mood)
 
-      const selected = {}
+      const selected = {};
 
       // Initialize both
       this.filters.forEach(filter => {
-        selected[filter] = []
-      })
+        selected[filter] = [];
+      });
 
       this.filters.forEach(filter => {
-        const currentFilters = this.filterSet[filter]
-        if (!currentFilters) return false // wtf?
+        const currentFilters = this.filterSet[filter];
+        if (!currentFilters) return false; // wtf?
 
         Object.keys(currentFilters)
           .filter(filterData => currentFilters[filterData] === true) // Select only true values
-          .forEach(filterData => selected[filter].push(filterData)) // Push in format
-      })
+          .forEach(filterData => selected[filter].push(filterData)); // Push in format
+      });
 
-      return selected
+      return selected;
     },
-    paginatedSelectedSongs () {
-      this.meta.songsLeft = this.songsNum < this.selectedSongs.length
-      return this.selectedSongs.slice(0, this.songsNum)
+    paginatedSelectedSongs() {
+      this.meta.songsLeft = this.songsNum < this.selectedSongs.length;
+      return this.selectedSongs.slice(0, this.songsNum);
     },
-    canZipDownload () {
-      return this.songs.length > this.selectedSongs.length || this.term
+    canZipDownload() {
+      return this.songs.length > this.selectedSongs.length || this.term;
     },
-    isMobile () {
-      var isMobile = false
+    isMobile() {
+      var isMobile = false;
       // device detection
       /* eslint-disable */
-      if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) 
-          || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0,4))) { 
-          isMobile = true
+      if (
+        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(
+          navigator.userAgent
+        ) ||
+        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
+          navigator.userAgent.substr(0, 4)
+        )
+      ) {
+        isMobile = true;
       }
       /* eslint-enable */
-      return isMobile
+      return isMobile;
     }
   },
   methods: {
     /**
      * Convert string or array to array
      */
-    toArray (item) {
-      return typeof item === 'string'
-        ? [item]
-        : item
+    toArray(item) {
+      return typeof item === "string" ? [item] : item;
     },
 
     /**
      * Initialize intersecting filter data for required elements
      */
-    initializeFilters () {
+    initializeFilters() {
       // make request for term equivalences
-      this.axios.get('/terms')
-        .then((res) => {
-          this.termEquivalences = res.data.termEquivalences
-        })
+      this.axios.get("/terms").then(res => {
+        this.termEquivalences = res.data.termEquivalences;
+      });
       // compute filter data from song
       this.songs.forEach(song =>
         this.filters.forEach(filter => {
-          this.$set(this.filterSet, filter, this.filterSet[filter] || {})
-
-          ;(this.toArray(song[filter]) || []).forEach(filterData => {
+          this.$set(this.filterSet, filter, this.filterSet[filter] || {});
+          (this.toArray(song[filter]) || []).forEach(filterData => {
             if (!this.filterSet[filter].hasOwnProperty(filterData)) {
-              this.$set(this.filterSet[filter], filterData, false)
+              this.$set(this.filterSet[filter], filterData, false);
             }
-          })
+          });
         })
-      )
+      );
     },
 
     /**
      * Fetch songs matching search term
      */
-    fetchSongs (term = '') {
-      this.loading = true
-      this.term = term
-      this.meta.songsLeft = true
+    fetchSongs(term = "") {
+      this.loading = true;
+      this.term = term;
+      this.meta.songsLeft = true;
 
-      return this.axios.post('/search', { term })
-      .then(res => {
-        this.loading = false
-        this.songs = [...res.data]
-        this.initializeFilters()
-        this.selectedSongs = [...res.data] // initialize selectedSongs
-        if (this.isViewingPlaylist) {
-          this.selectedSongs = this.selectedSongs.filter(song =>
-            this.playlist.includes(song.num_id)
-          )
-        }
-        if (term) {
-          this.selectSongs()
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      })
+      return this.axios
+        .post("/search", { term })
+        .then(res => {
+          this.loading = false;
+          this.songs = [...res.data];
+          this.initializeFilters();
+          this.selectedSongs = [...res.data]; // initialize selectedSongs
+          if (this.isViewingPlaylist) {
+            this.selectedSongs = this.selectedSongs.filter(song =>
+              this.playlist.includes(song.num_id)
+            );
+          }
+          if (term) {
+            this.selectSongs();
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
 
     /**
      * Fetches metadata for about and FAQ
      */
-    fetchMeta () {
-      this.axios.post('/meta')
-      .then(res => {
-        this.content.faq = res.data.faq
-      })
+    fetchMeta() {
+      this.axios.post("/meta").then(res => {
+        this.content.faq = res.data.faq;
+      });
     },
 
     /**
      * Updates an individual filter's "checked" value and calls to select filtered songs
      */
-    updateCheck (filterData, filter) {
-      const currentState = this.filterSet[filter][filterData]
-      if (filter === 'collec') {
+    updateCheck(filterData, filter) {
+      const currentState = this.filterSet[filter][filterData];
+      if (filter === "collec") {
         // If part of a collection, deselect all others!
-        const collecFilters = Object.keys(this.filterSet['collec'])
+        const collecFilters = Object.keys(this.filterSet["collec"]);
         collecFilters.forEach(f => {
-          this.$set(this.filterSet['collec'], f, false)
-        })
+          this.$set(this.filterSet["collec"], f, false);
+        });
       }
-      this.$set(this.filterSet[filter], filterData, !currentState)
-      this.hideSongs()
-      this.selectSongs()
+      this.$set(this.filterSet[filter], filterData, !currentState);
+      this.hideSongs();
+      this.selectSongs();
     },
 
     /**
      * Reset to default number of visible songs on screen
      */
-    hideSongs () {
-      if (window.matchMedia('(max-width: 40em)').matches) {
-        this.hideSongsBehindButton()
+    hideSongs() {
+      if (window.matchMedia("(max-width: 40em)").matches) {
+        this.hideSongsBehindButton();
       }
-      this.songsNum = 20
-      return true
+      this.songsNum = 20;
+      return true;
     },
 
     /**
      * Update the number of songs shown on screen
      */
-    updateSongsNum () {
-      this.songsNum += 20
-      return true
+    updateSongsNum() {
+      this.songsNum += 20;
+      return true;
     },
 
     /**
      * Get all term equivalences for a filter term, including the term itself
      */
-    filtersGetTermEquivalences (term) {
-      return this.termEquivalences.find(termsRow =>
-        termsRow.includes(term)
-      ) || [term]
+    filtersGetTermEquivalences(term) {
+      return (
+        this.termEquivalences.find(termsRow => termsRow.includes(term)) || [
+          term
+        ]
+      );
     },
 
     /**
      * Checks if data of the song matches the filters that the user selected
      * filters are added via set intersection (logical AND)
      */
-    filtersMatch (song) {
+    filtersMatch(song) {
       // check if inner condition is true for every 'filter'
       // 'filter' here can be 'genre', 'primary_keywords', etc.
       return this.filters.every(filter => {
-        const filterSet = this.filterSelections[filter]
-        if (filter === 'genre' || filter === 'energy') {
+        const filterSet = this.filterSelections[filter];
+        if (filter === "genre" || filter === "energy") {
           // just check by OR
-          return filterSet.length ? filterSet.some(filterData =>
-            song[filter].includes(filterData)
-          ) : true
-        } if (filter === 'primary_keywords') {
+          return filterSet.length
+            ? filterSet.some(filterData => song[filter].includes(filterData))
+            : true;
+        }
+        if (filter === "primary_keywords") {
           // check every inner filterData with AND,
           // also allow equivalences here
           return filterSet.every(filterData => {
-            const filterDataAndEquivalences = this.filtersGetTermEquivalences(filterData)
+            const filterDataAndEquivalences = this.filtersGetTermEquivalences(
+              filterData
+            );
             return filterDataAndEquivalences.some(filterData =>
               song[filter].includes(filterData)
-            )
-          })
+            );
+          });
         } else {
           // check every inner filterData with AND
           return filterSet.every(filterData =>
             song[filter].includes(filterData)
-          )
+          );
         }
-      })
+      });
     },
 
     /**
      * Narrow down selected songs to those who fit filters
      */
-    selectSongs () {
-      this.selectedSongs = this.songs
-      .filter(this.filtersMatch)
+    selectSongs() {
+      this.selectedSongs = this.songs.filter(this.filtersMatch);
     },
 
     /**
      * Submit a contact form to server
      */
-    submitContact () {
-      this.axios.post('/contact', this.contact)
-      .then(_ => {
-        this.meta.isContactSubmitted = true
-      })
+    submitContact() {
+      this.axios.post("/contact", this.contact).then(_ => {
+        this.meta.isContactSubmitted = true;
+      });
     },
 
     // Clear all selected filters, search, etc
-    clearAll () {
+    clearAll() {
       this.filters.forEach(filter => {
-        const currentFilters = this.filterSet[filter]
+        const currentFilters = this.filterSet[filter];
         Object.keys(currentFilters).forEach(filterData => {
-          this.$set(this.filterSet[filter], filterData, false)
-        })
-      })
+          this.$set(this.filterSet[filter], filterData, false);
+        });
+      });
       // clear search
-      this.$refs.sidebar.clearSearch()
+      this.$refs.sidebar.clearSearch();
       // clear playlist
-      this.playlist = []
-      this.isViewingPlaylist = false
+      this.playlist = [];
+      this.isViewingPlaylist = false;
       // re-fetch and select songs
-      this.fetchSongs()
-      .then(_ => this.selectSongs())
+      this.fetchSongs().then(_ => this.selectSongs());
     },
 
     /**
      * Create & download zip file for all selected songs
      */
-    downloadAllSelected (format) {
+    downloadAllSelected(format) {
       // Create compressed data for songs
-      const songs = this.selectedSongs.map(s => ({ title: s.title }))
+      const songs = this.selectedSongs.map(s => ({ title: s.title }));
       // Start loader
-      this.meta.isLoadingZip = true
-      this.axios.post('/dl', { format, songs }, { responseType: 'blob' })
-      .then(songsDl => {
-        this.meta.isLoadingZip = false
-        dl(new Blob([songsDl.data]), 'search_results.zip')
-      })
+      this.meta.isLoadingZip = true;
+      this.axios
+        .post("/dl", { format, songs }, { responseType: "blob" })
+        .then(songsDl => {
+          this.meta.isLoadingZip = false;
+          dl(new Blob([songsDl.data]), "search_results.zip");
+        });
     },
 
     /**
      * Load playlist if user has navigated from one
      */
-    loadPlaylist () {
-      const playlist = this.$refs.Playlist.load()
-      this.playlist = playlist
+    loadPlaylist() {
+      const playlist = this.$refs.Playlist.load();
+      this.playlist = playlist;
       if (playlist.length) {
-        this.isViewingPlaylist = true
+        this.isViewingPlaylist = true;
       }
     },
 
     /**
      * Add/remove a given song to playlist
      */
-    playlistAdd (shortId) {
+    playlistAdd(shortId) {
       if (!this.playlist.includes(shortId)) {
-        this.playlist.push(shortId)
+        this.playlist.push(shortId);
       }
     },
-    playlistRemove (shortId) {
-      this.playlist.splice(this.playlist.indexOf(shortId), 1)
+    playlistRemove(shortId) {
+      this.playlist.splice(this.playlist.indexOf(shortId), 1);
     },
 
     /**
      * Smooth scroll
      */
-    scrollToApp () {
-      document.querySelector('.page-container').scrollIntoView({
-        behavior: 'smooth'
-      })
+    scrollToApp() {
+      document.querySelector(".page-container").scrollIntoView({
+        behavior: "smooth"
+      });
+      this.showHeader = false;
     },
 
-    monitorVolume () {
-      $bus.$on('setAudioVolume', vol => {
-        this.audioVolume = vol / 100
-      })
+    /**
+     * Set show header in false if user scrolls down past header
+     */
+    onPastHeaderScroll() {
+      this.showHeader = false;
     },
 
-    songsLoadedAdd (wave) {
-      this.songsLoaded.push(wave)
+    monitorVolume() {
+      $bus.$on("setAudioVolume", vol => {
+        this.audioVolume = vol / 100;
+      });
+    },
+
+    songsLoadedAdd(wave) {
+      this.songsLoaded.push(wave);
       if (this.songsLoaded.length > this.maxSongsInMemory) {
-        this.songsLoaded.splice(0, 1)[0].wave.destroy()
+        this.songsLoaded.splice(0, 1)[0].wave.destroy();
       }
     },
 
-    selectedSongForPlaying (song, wave) {
-      this.actualPlayingSong = song
-      this.actualPlayingWave = wave
+    selectedSongForPlaying(song, wave) {
+      this.actualPlayingSong = song;
+      this.actualPlayingWave = wave;
     }
   },
 
-  created () {
-    this.fetchMeta()
-    this.fetchSongs()
-    this.monitorVolume()
+  created() {
+    this.fetchMeta();
+    this.fetchSongs();
+    this.monitorVolume();
   },
 
-  mounted () {
-    this.loadPlaylist()
+  mounted() {
+    this.loadPlaylist();
   }
-}
+};
 </script>
 
 <style lang="stylus">
@@ -1079,6 +1120,8 @@ wave
 //
 // Misc
 //
+.hidden
+  display none
 
 // Playlist Specific
 .app--is-viewing-playlist

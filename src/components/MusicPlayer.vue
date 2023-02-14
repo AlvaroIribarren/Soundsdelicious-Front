@@ -13,8 +13,8 @@
       </div>
       <div class="titles_container">
         <div class="song_title">
-          <strong> 
-            {{ this.song ? this.song.title : "Song name" }} 
+          <strong>
+            {{ this.song ? this.song.title : "Song name" }}
           </strong>
         </div>
         <div class="song_title">
@@ -22,22 +22,25 @@
         </div>
       </div>
       <div>
-        <div class="wavesurfer-container" v-show="this.currentLoadingPercentage === 100">
+        <div
+          class="wavesurfer-container"
+          v-show="this.currentLoadingPercentage === 100"
+        >
           <div id="player" class="wavesurfer"></div>
         </div>
         <div v-show="this.currentLoadingPercentage < 100" class="progress">
-          <b-progress 
-            :value="this.currentLoadingPercentage" 
+          <b-progress
+            :value="this.currentLoadingPercentage"
             :variant="this.loadingError ? 'danger' : ''"
-            :max=100 
-            show-progress 
+            :max="100"
+            show-progress
             animated
           />
         </div>
       </div>
       <div class="timer" v-show="this.currentLoadingPercentage === 100">
         <div class="actual-duration">
-          {{ this.currentTime === 0 ? '00:00' : this.currentTime }}
+          {{ this.currentTime === 0 ? "00:00" : this.currentTime }}
         </div>
         <div>
           /
@@ -48,14 +51,14 @@
       </div>
       <div class="volume-controller">
         <i class="material-icons volume-up">volume_up</i>
-        <input 
-          class="slider-volume" 
-          type="range" 
-          min="0" 
-          max="1.0" 
-          step="0.01" 
-          v-model="vol" 
-          style="padding:0;" 
+        <input
+          class="slider-volume"
+          type="range"
+          min="0"
+          max="1.0"
+          step="0.01"
+          v-model="vol"
+          style="padding:0;"
         />
       </div>
       <div class="interact-music-player">
@@ -64,10 +67,22 @@
             <i class="material-icons download_icon">get_app</i>
           </template>
           <div class="b-dropdown-item">
-            <a download target="_blank" @click.prevent="dl('mp3')" title="Download This Audio File">Download MP3</a>
+            <a
+              download
+              target="_blank"
+              @click.prevent="dl('mp3')"
+              title="Download This Audio File"
+              >Download MP3</a
+            >
           </div>
           <div class="b-dropdown-item">
-            <a download target="_blank" @click.prevent="dl('wav')" title="Download This Audio File">Download WAV</a>
+            <a
+              download
+              target="_blank"
+              @click.prevent="dl('wav')"
+              title="Download This Audio File"
+              >Download WAV</a
+            >
           </div>
           <!-- <div class="b-dropdown-item" v-show="song.has_stems">
             <a download target="_blank" @click.prevent="dl('zip')" title="Download All Stems (.zip)" class="m-hide">Download Stems</a>
@@ -75,163 +90,168 @@
         </b-dropdown>
       </div>
     </div>
-
   </div>
 </template>
 
-
 <script>
-import wavesurfer from 'wavesurfer.js'
-import { BProgress, BDropdown } from 'bootstrap-vue'
-import { $bus } from './EventBus.js'
-import { mapActions } from 'vuex'
+import wavesurfer from "wavesurfer.js";
+import { BProgress, BDropdown } from "bootstrap-vue";
+import { $bus } from "./EventBus.js";
+import { mapActions } from "vuex";
+import { config } from "../config";
 
 export default {
-  name: 'music-player',
+  name: "music-player",
   components: {
-    'b-progress': BProgress,
-    'b-dropdown': BDropdown
+    "b-progress": BProgress,
+    "b-dropdown": BDropdown
   },
-  data () {
+  data() {
     return {
-      wave: '',
+      wave: "",
       isPlaying: true,
-      currentTime: '00:00',
+      currentTime: "00:00",
       currentLoadingPercentage: 0,
       loadingError: false,
       meta: {
         playedOnce: false,
         isDownloadDropVisible: false,
-        songsDir: `//${window.location.hostname === 'localhost' ? 'localhost:3030' : 'api.soundsdeliciousmusiclibrary.com'}/songs`,
+        songsDir: `//${config.API_URL}/songs`,
         currentDownload: {
-          wav: '',
-          mp3: ''
+          wav: "",
+          mp3: ""
         },
-        duration: '00:00',
+        duration: "00:00",
         usesWav: false,
-        toLoad: ''
+        toLoad: ""
       }
-    }
+    };
   },
-  props: ['song', 'wavePlaying', 'vol'],
+  props: ["song", "wavePlaying", "vol"],
   watch: {
-    song: function (newVal, oldVal) {
-      this.currentLoadingPercentage = 0
-      this.loadingError = false
-      this.song = newVal
-      this.wave.destroy()
-      this.wave = this.createTrack()
-      this.loadTrack()
-      this.wave.play()
+    song: function(newVal, oldVal) {
+      this.currentLoadingPercentage = 0;
+      this.loadingError = false;
+      this.song = newVal;
+      this.wave.destroy();
+      this.wave = this.createTrack();
+      this.loadTrack();
+      this.wave.play();
     },
-    vol: function (newVal, oldVal) {
-      this.vol = newVal
-      this.wave.setVolume(this.vol)
+    vol: function(newVal, oldVal) {
+      this.vol = newVal;
+      this.wave.setVolume(this.vol);
     }
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    ...mapActions(['setPlaybackInfo']),
+    ...mapActions(["setPlaybackInfo"]),
 
-    link (suffix) {
-      return `${this.meta.songsDir}/${this.song.title}/${this.song.title}${suffix}`
+    link(suffix) {
+      return `${this.meta.songsDir}/${this.song.title}/${this.song.title}${suffix}`;
     },
-    createTrack () {
+    createTrack() {
       return wavesurfer.create({
-        container: '#player',
+        container: "#player",
         height: 26,
-        backend: 'MediaElement',
-        waveColor: '#dbe6e8',
-        progressColor: '#2433D9',
-        backgroundColor: 'transparent',
+        backend: "MediaElement",
+        waveColor: "#dbe6e8",
+        progressColor: "#2433D9",
+        backgroundColor: "transparent",
         barWidth: 2,
         fillParent: true
-      })
+      });
     },
-    getProgressVariant () {
-      if (this.loadingError) return 'error'
-      else return 'success'
+    getProgressVariant() {
+      if (this.loadingError) return "error";
+      else return "success";
     },
-    triggerPlayPause () {
+    triggerPlayPause() {
       if (this.isPlaying) {
-        this.setPlaybackInfo({ state: 'pause', current: this.song.num_id })
+        this.setPlaybackInfo({ state: "pause", current: this.song.num_id });
       } else {
-        this.setPlaybackInfo({ state: 'play', current: this.song.num_id })
+        this.setPlaybackInfo({ state: "play", current: this.song.num_id });
       }
 
-      if (this.isPlaying) this.pause()
-      else this.play()
+      if (this.isPlaying) this.pause();
+      else this.play();
     },
-    play () {
-      this.wave.play()
-      this.isPlaying = true
+    play() {
+      this.wave.play();
+      this.isPlaying = true;
     },
-    pause () {
-      this.isPlaying = false
+    pause() {
+      this.isPlaying = false;
       if (this.wave.isPlaying()) {
-        this.wave.pause()
+        this.wave.pause();
       }
     },
-    loadTrack () {
-      const path = this.link('.mp3')
-      const pathWav = path.replace('mp3', 'wav')
+    loadTrack() {
+      const path = this.link(".mp3");
+      const pathWav = path.replace("mp3", "wav");
       // set track length
       // this.meta.duration = this.secondsToDuration(this.song.length)
       // set download path
-      this.meta.currentDownload.wav = `${pathWav}?dl=1`
-      this.meta.currentDownload.mp3 = `${path}?dl=1`
+      this.meta.currentDownload.wav = `${pathWav}?dl=1`;
+      this.meta.currentDownload.mp3 = `${path}?dl=1`;
       // Pause the song if it's playing before switching
-      if (this.isPlaying) this.pause()
+      if (this.isPlaying) this.pause();
       // Position is reset
-      this.meta.playedOnce = false
-      this.toLoad = this.meta.usesWav ? pathWav : path
+      this.meta.playedOnce = false;
+      this.toLoad = this.meta.usesWav ? pathWav : path;
 
-      this.wave.load(path)
+      this.wave.load(path);
 
-      this.wave.on('ready', () => {
-        const s = Math.floor(this.wave.getDuration())
-        this.meta.duration = this.secondsToDuration(s)
-        this.wave.setVolume(this.vol)
-        this.triggerPlayPause()
-        this.currentLoadingPercentage = 100
-      })
-      this.wave.on('play', () => {
-      })
-      this.wave.on('pause', () => {
-      })
-      this.wave.on('loading', (percentage) => {
-        this.currentLoadingPercentage = percentage
-      })
-      this.wave.on('error', () => {
+      this.wave.on("ready", () => {
+        const s = Math.floor(this.wave.getDuration());
+        this.meta.duration = this.secondsToDuration(s);
+        this.wave.setVolume(this.vol);
+        this.triggerPlayPause();
+        this.currentLoadingPercentage = 100;
+      });
+      this.wave.on("play", () => {});
+      this.wave.on("pause", () => {});
+      this.wave.on("loading", percentage => {
+        this.currentLoadingPercentage = percentage;
+      });
+      this.wave.on("error", () => {
         if (!this.meta.usesWav) {
-          console.log(`Broken MP3: ${path}`)
-          this.meta.usesWav = true
-          this.loadTrack()
+          console.log(`Broken MP3: ${path}`);
+          this.meta.usesWav = true;
+          this.loadTrack();
         } else {
-          this.loadingError = true
+          this.loadingError = true;
         }
-      })
-      this.wave.on('audioprocess', () => {
+      });
+      this.wave.on("audioprocess", () => {
         if (this.wave.isPlaying()) {
-          this.currentTime = this.secondsToDuration(Math.round(this.wave.getCurrentTime()))
+          this.currentTime = this.secondsToDuration(
+            Math.round(this.wave.getCurrentTime())
+          );
         }
-      })
+      });
     },
-    secondsToDuration (s) {
-      return s > 0 ? Math.floor(s / 60).toString().padStart(2, '0') + ':' + (s % 60).toString().padStart(2, '0') : 0
+    secondsToDuration(s) {
+      return s > 0
+        ? Math.floor(s / 60)
+            .toString()
+            .padStart(2, "0") +
+            ":" +
+            (s % 60).toString().padStart(2, "0")
+        : 0;
     },
-    getDuration () {
-      if (this.wave) return this.secondsToDuration(Math.floor(this.wave.getDuration()))
-      else return this.wave.duration
+    getDuration() {
+      if (this.wave)
+        return this.secondsToDuration(Math.floor(this.wave.getDuration()));
+      else return this.wave.duration;
     },
-    dl (ext) {
+    dl(ext) {
       if (this.$auth.check()) {
-        const link = this.meta.currentDownload[ext] || this.link('.' + ext)
-        this.axios.post('/auth/dl/trc', { title: this.song.title })
-        window.open(link, '_blank')
+        const link = this.meta.currentDownload[ext] || this.link("." + ext);
+        this.axios.post("/auth/dl/trc", { title: this.song.title });
+        window.open(link, "_blank");
       } else {
-        $bus.$emit('auth_open', 'download')
+        $bus.$emit("auth_open", "download");
       }
     }
     // loadTrackInMemory () {
@@ -246,16 +266,14 @@ export default {
     //   }
     // },
   },
-  mounted () {
-    this.wave = this.createTrack()
-    this.loadTrack()
+  mounted() {
+    this.wave = this.createTrack();
+    this.loadTrack();
   },
-  unmounted () {
-
-  }
-}
+  unmounted() {}
+};
 </script>
 
 <style>
-  @import '../css/MusicPlayer.css';
+@import "../css/MusicPlayer.css";
 </style>

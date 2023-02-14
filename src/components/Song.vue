@@ -16,28 +16,61 @@
         <h2 class="artist">{{ song.artist.trim() }}</h2>
       </div>
       <div class="meta">
-        <div><strong>{{ song.genre[0] }}</strong></div>
-        <div>{{ song.primary_keywords.slice(0, 3).join(', ') }}</div>
+        <div>
+          <strong>{{ song.genre[0] }}</strong>
+        </div>
+        <div>{{ song.primary_keywords.slice(0, 3).join(", ") }}</div>
       </div>
       <div :class="'wave-' + song._id" class="wave"></div>
       <div class="duration" v-if="meta.duration != 0">{{ meta.duration }}</div>
       <div class="interact">
         <template v-if="!isViewingPlaylist">
-          <a @click="playlistAdd" title="Add To Playlist" class="playlist--control btn btn-link" v-if="!isInPlaylist"><i class="material-icons">add</i></a>
-          <a @click="playlistRemove" title="Remove From Playlist" class="playlist--control btn btn-link" v-else><i class="material-icons">remove</i></a>
+          <a
+            @click="playlistAdd"
+            title="Add To Playlist"
+            class="playlist--control btn btn-link"
+            v-if="!isInPlaylist"
+            ><i class="material-icons">add</i></a
+          >
+          <a
+            @click="playlistRemove"
+            title="Remove From Playlist"
+            class="playlist--control btn btn-link"
+            v-else
+            ><i class="material-icons">remove</i></a
+          >
         </template>
         <b-dropdown variant="none" no-caret>
           <template v-slot:button-content>
             <i class="material-icons">get_app</i>
           </template>
           <div class="b-dropdown-item">
-            <a download target="_blank" @click.prevent="dl('mp3')" title="Download This Audio File">Download MP3</a>
+            <a
+              download
+              target="_blank"
+              @click.prevent="dl('mp3')"
+              title="Download This Audio File"
+              >Download MP3</a
+            >
           </div>
           <div class="b-dropdown-item">
-            <a download target="_blank" @click.prevent="dl('wav')" title="Download This Audio File">Download WAV</a>
+            <a
+              download
+              target="_blank"
+              @click.prevent="dl('wav')"
+              title="Download This Audio File"
+              >Download WAV</a
+            >
           </div>
           <div class="b-dropdown-item" v-show="song.has_stems">
-            <a download target="_blank" @click.prevent="dl('zip')" title="Download All Stems (.zip)" class="m-hide">Download Stems</a>
+            <a
+              download
+              target="_blank"
+              @click.prevent="dl('zip')"
+              title="Download All Stems (.zip)"
+              class="m-hide"
+              >Download Stems</a
+            >
           </div>
         </b-dropdown>
       </div>
@@ -46,13 +79,14 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { $bus } from './EventBus.js'
-import { BDropdown } from 'bootstrap-vue'
-import wavesurfer from 'wavesurfer.js'
+import { mapState } from "vuex";
+import { $bus } from "./EventBus.js";
+import { BDropdown } from "bootstrap-vue";
+import wavesurfer from "wavesurfer.js";
+import { config } from "../config";
 
 export default {
-  name: 'Song',
+  name: "Song",
   props: {
     song: {
       type: Object,
@@ -76,88 +110,97 @@ export default {
     }
   },
   components: {
-    'b-dropdown': BDropdown
+    "b-dropdown": BDropdown
   },
-  data () {
+  data() {
     return {
-      wave: '',
+      wave: "",
       meta: {
         playedOnce: false,
         isPlaying: false,
         isDownloadDropVisible: false,
-        songsDir: `//${window.location.hostname === 'localhost' ? 'localhost:3030' : 'api.soundsdeliciousmusiclibrary.com'}/songs`,
+        songsDir: `//${config.API_URL}/songs`,
         currentDownload: {
-          wav: '',
-          mp3: ''
+          wav: "",
+          mp3: ""
         },
-        duration: '00:00',
+        duration: "00:00",
         usesWav: false,
-        toLoad: ''
+        toLoad: ""
       }
-    }
+    };
   },
   watch: {
-    playbackInfo (currentPlaybackInfo) {
-      if (currentPlaybackInfo.state === 'play') {
+    playbackInfo(currentPlaybackInfo) {
+      if (currentPlaybackInfo.state === "play") {
         if (currentPlaybackInfo.current === this.song.num_id) {
-          this.play()
+          this.play();
         } else {
-          this.pause()
+          this.pause();
         }
       }
-      if (currentPlaybackInfo.state === 'pause') {
-        this.pause()
+      if (currentPlaybackInfo.state === "pause") {
+        this.pause();
       }
     },
 
-    vol () {
-      this.wave && this.wave.setVolume(this.vol)
+    vol() {
+      this.wave && this.wave.setVolume(this.vol);
     }
   },
-  mounted () {
-    this.wave = this.createTrack()
-    this.loadTrack()
+  mounted() {
+    this.wave = this.createTrack();
+    this.loadTrack();
     // this.$refs.playButton.addEventListener('mouseover', this.loadTrackInMemory)
   },
-  unmounted () {
-    this.$refs.playButton.removeEventListener('mouseover', this.loadTrackInMemory)
+  unmounted() {
+    this.$refs.playButton.removeEventListener(
+      "mouseover",
+      this.loadTrackInMemory
+    );
   },
   computed: {
-    ...mapState(['playbackInfo']),
+    ...mapState(["playbackInfo"]),
 
-    shortId () {
-      return this.song.num_id
+    shortId() {
+      return this.song.num_id;
     },
 
     /**
      * All keywords associated with a song, comma separated
      */
-    allKeywords () {
-      const keys = ['primary_keywords', 'secondary_keywords', 'searchable_keywords']
-      const keywords = []
-      keys.map(k => keywords.push(...this.song[k]))
-      return keywords.join(', ')
+    allKeywords() {
+      const keys = [
+        "primary_keywords",
+        "secondary_keywords",
+        "searchable_keywords"
+      ];
+      const keywords = [];
+      keys.map(k => keywords.push(...this.song[k]));
+      return keywords.join(", ");
     },
 
     /**
      * Check if current song is in playlist
      */
-    isInPlaylist () {
-      return this.playlist.includes(this.shortId)
+    isInPlaylist() {
+      return this.playlist.includes(this.shortId);
     },
 
-    songIsLoaded () {
-      return this.songsLoaded.map(song => song.num_id).includes(this.song.num_id)
+    songIsLoaded() {
+      return this.songsLoaded
+        .map(song => song.num_id)
+        .includes(this.song.num_id);
     }
   },
   methods: {
-    createTrack () {
+    createTrack() {
       return wavesurfer.create({
-        container: '.wave-' + this.song._id,
-        backend: 'MediaElement',
-        waveColor: '#dbe6e8',
-        progressColor: '#dbe6e8',
-        backgroundColor: 'transparent',
+        container: ".wave-" + this.song._id,
+        backend: "MediaElement",
+        waveColor: "#dbe6e8",
+        progressColor: "#dbe6e8",
+        backgroundColor: "transparent",
         barWidth: 2,
         height: 26,
         hideCursor: true,
@@ -165,118 +208,129 @@ export default {
         fillParent: true,
         normalize: true,
         interact: false
-      })
+      });
     },
 
-    getPeaks () {
-      this.axios.get(`/songs-peaks/${this.song.title}/${this.song.title}.json`)
+    getPeaks() {
+      this.axios
+        .get(`/songs-peaks/${this.song.title}/${this.song.title}.json`)
         .then(peaks => {
-          const empty = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjM2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU2LjQxAAAAAAAAAAAAAAAAJAAAAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA//MUZAAAAAGkAAAAAAAAA0gAAAAATEFN//MUZAMAAAGkAAAAAAAAA0gAAAAARTMu//MUZAYAAAGkAAAAAAAAA0gAAAAAOTku//MUZAkAAAGkAAAAAAAAA0gAAAAANVVV'
-          this.wave.load(empty, peaks.data.data)
-          this.wave.drawBuffer()
+          const empty =
+            "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjM2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU2LjQxAAAAAAAAAAAAAAAAJAAAAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA//MUZAAAAAGkAAAAAAAAA0gAAAAATEFN//MUZAMAAAGkAAAAAAAAA0gAAAAARTMu//MUZAYAAAGkAAAAAAAAA0gAAAAAOTku//MUZAkAAAGkAAAAAAAAA0gAAAAANVVV";
+          this.wave.load(empty, peaks.data.data);
+          this.wave.drawBuffer();
         })
-        .catch((err) => {
-          console.log(`Error in ${this.song.title} ${err}`)
-        })
+        .catch(err => {
+          console.log(`Error in ${this.song.title} ${err}`);
+        });
     },
-    loadTrack () {
-      const path = this.link('.mp3')
-      const pathWav = path.replace('mp3', 'wav')
+    loadTrack() {
+      const path = this.link(".mp3");
+      const pathWav = path.replace("mp3", "wav");
       // set track length
-      this.meta.duration = this.secondsToDuration(this.song.length)
+      this.meta.duration = this.secondsToDuration(this.song.length);
       // set download path
-      this.meta.currentDownload.wav = `${pathWav}?dl=1`
-      this.meta.currentDownload.mp3 = `${path}?dl=1`
+      this.meta.currentDownload.wav = `${pathWav}?dl=1`;
+      this.meta.currentDownload.mp3 = `${path}?dl=1`;
       // Pause the song if it's playing before switching
-      if (this.meta.isPlaying) this.pause()
+      if (this.meta.isPlaying) this.pause();
       // Position is reset
-      this.meta.playedOnce = false
-      this.toLoad = this.meta.usesWav ? pathWav : path
+      this.meta.playedOnce = false;
+      this.toLoad = this.meta.usesWav ? pathWav : path;
       // Load appropriate track (default: mp3) with peaks
-      this.getPeaks()
-      this.wave.on('ready', () => {
-        const s = Math.floor(this.wave.getDuration())
-        this.meta.duration = this.secondsToDuration(s)
-        this.wave.setVolume(this.vol)
-      })
-      this.wave.on('error', () => {
+      this.getPeaks();
+      this.wave.on("ready", () => {
+        const s = Math.floor(this.wave.getDuration());
+        this.meta.duration = this.secondsToDuration(s);
+        this.wave.setVolume(this.vol);
+      });
+      this.wave.on("error", () => {
         if (!this.meta.usesWav) {
-          console.log(`Broken MP3: ${path}`)
-          this.meta.usesWav = true
-          this.loadTrack()
+          console.log(`Broken MP3: ${path}`);
+          this.meta.usesWav = true;
+          this.loadTrack();
         }
-      })
+      });
     },
 
-    triggerPlayPause () {
+    triggerPlayPause() {
       // if (this.meta.isPlaying) {
       //   this.setPlaybackInfo({ state: 'pause', current: this.song.num_id })
       // } else {
       //   this.setPlaybackInfo({ state: 'play', current: this.song.num_id })
       // }
-      this.meta.isPlaying = !this.meta.isPlaying
-      this.emitPlaySong()
+      this.meta.isPlaying = !this.meta.isPlaying;
+      this.emitPlaySong();
     },
 
-    play () {
-      this.wave.play()
-      this.meta.isPlaying = true
+    play() {
+      this.wave.play();
+      this.meta.isPlaying = true;
     },
 
-    pause () {
-      this.meta.isPlaying = false
+    pause() {
+      this.meta.isPlaying = false;
       if (this.wave.isPlaying()) {
-        this.wave.pause()
+        this.wave.pause();
       }
     },
 
-    dl (ext) {
+    dl(ext) {
       if (this.$auth.check()) {
-        const link = this.meta.currentDownload[ext] || this.link('.' + ext)
-        this.axios.post('/auth/dl/trc', { title: this.song.title })
-        window.open(link, '_blank')
+        const link = this.meta.currentDownload[ext] || this.link("." + ext);
+        this.axios.post("/auth/dl/trc", { title: this.song.title });
+        window.open(link, "_blank");
       } else {
-        $bus.$emit('auth_open', 'download')
+        $bus.$emit("auth_open", "download");
       }
     },
 
-    link (suffix) {
-      return `${this.meta.songsDir}/${this.song.title}/${this.song.title}${suffix}`
+    link(suffix) {
+      return `${this.meta.songsDir}/${this.song.title}/${this.song.title}${suffix}`;
     },
 
-    playlistAdd () {
-      this.$emit('playlistAdd', this.shortId)
+    playlistAdd() {
+      this.$emit("playlistAdd", this.shortId);
     },
 
-    playlistRemove () {
-      this.$emit('playlistRemove', this.shortId)
+    playlistRemove() {
+      this.$emit("playlistRemove", this.shortId);
     },
 
-    clearSearch () {
-      this.$refs['search'].clearSearch()
+    clearSearch() {
+      this.$refs["search"].clearSearch();
     },
 
-    secondsToDuration (s) {
-      return s > 0 ? Math.floor(s / 60).toString().padStart(2, '0') + ':' + (s % 60).toString().padStart(2, '0') : 0
+    secondsToDuration(s) {
+      return s > 0
+        ? Math.floor(s / 60)
+            .toString()
+            .padStart(2, "0") +
+            ":" +
+            (s % 60).toString().padStart(2, "0")
+        : 0;
     },
 
-    loadTrackInMemory () {
+    loadTrackInMemory() {
       if (this.wave.isDestroyed) {
-        this.wave = this.createTrack()
-        this.loadTrack()
+        this.wave = this.createTrack();
+        this.loadTrack();
       }
 
       if (!this.meta.isPlaying && !this.songIsLoaded) {
-        this.wave.load(this.toLoad)
-        this.$emit('songsLoadedAdd', { wave: this.wave, num_id: this.song.num_id })
+        this.wave.load(this.toLoad);
+        this.$emit("songsLoadedAdd", {
+          wave: this.wave,
+          num_id: this.song.num_id
+        });
       }
     },
 
-    emitPlaySong () {
-      this.$emit('selectedSongForPlaying', this.song, this.wave)
+    emitPlaySong() {
+      this.$emit("selectedSongForPlaying", this.song, this.wave);
     }
   }
-}
+};
 </script>
 
 <style lang="stylus" scoped>

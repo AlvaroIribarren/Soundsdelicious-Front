@@ -53,50 +53,49 @@
       />
 
       <div class="main-content">
-        <div class="songs-container">
+        <div class="header-container">
           <video-sync />
-
           <Playlist
             :playlist="playlist"
             ref="Playlist"
             :is-viewing-playlist="isViewingPlaylist"
           />
-          <div class="songs" v-show="meta.areSongsVisible">
-            <div class="wrap">
-              <h1 class="songs__title">Songs</h1>
-              <div class="songs-container">
-                <Song
-                  v-for="song in paginatedSelectedSongs"
-                  :key="song._id"
-                  :song="song"
-                  :playlist="playlist"
-                  :is-viewing-playlist="isViewingPlaylist"
-                  :vol="audioVolume"
-                  :songsLoaded="songsLoaded"
-                  :actualPlayingSong="actualPlayingSong"
-                  @playlistAdd="playlistAdd"
-                  @playlistRemove="playlistRemove"
-                  @songsLoadedAdd="songsLoadedAdd"
-                  @selectedSongForPlaying="selectedSongForPlaying"
-                />
-                <button
-                  @click="updateSongsNum"
-                  class="lbtn lbtn--ghost load-more"
-                  v-if="selectedSongs.length > songsNum"
-                >
-                  View More
-                </button>
-                <div v-if="selectedSongs.length === 0">
-                  <h1>No matching results found</h1>
-                </div>
+        </div>
+        <div class="songs" v-show="meta.areSongsVisible">
+          <div class="wrap">
+            <h1 class="songs__title">Songs</h1>
+            <div class="songs-container">
+              <Song
+                v-for="song in paginatedSelectedSongs"
+                :key="song._id"
+                :song="song"
+                :playlist="playlist"
+                :is-viewing-playlist="isViewingPlaylist"
+                :vol="audioVolume"
+                :songsLoaded="songsLoaded"
+                :actualPlayingSong="actualPlayingSong"
+                @playlistAdd="playlistAdd"
+                @playlistRemove="playlistRemove"
+                @songsLoadedAdd="songsLoadedAdd"
+                @selectedSongForPlaying="selectedSongForPlaying"
+              />
+              <button
+                @click="updateSongsNum"
+                class="lbtn lbtn--ghost load-more"
+                v-if="selectedSongs.length > songsNum"
+              >
+                View More
+              </button>
+              <div v-if="selectedSongs.length === 0">
+                <h3>No matching results found</h3>
               </div>
-              <div class="downloader" v-show="isViewingPlaylist">
-                <span @click.prevent="downloadAllSelected('mp3')"
-                  >Download<br />All<br /><i class="material-icons"
-                    >file_download</i
-                  ></span
-                >
-              </div>
+            </div>
+            <div class="downloader" v-show="isViewingPlaylist">
+              <span @click.prevent="downloadAllSelected('mp3')"
+                >Download<br />All<br /><i class="material-icons"
+                  >file_download</i
+                ></span
+              >
             </div>
           </div>
         </div>
@@ -616,6 +615,32 @@ $tertiary = #F782AA
   font-family: 'NeuzeitGroExt-Bla';
   src: url('/static/webFonts/NeuzeitGroExt-Bla/font.woff2') format('woff2'), url('/static/webFonts/NeuzeitGroExt-Bla/font.woff') format('woff');
 }
+@font-face {
+  font-family: 'RaisonnePro';
+  font-weight 300
+  src: url('/static/webFonts/RaisonnePro/RaisonnePro-Light.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'RaisonnePro';
+  font-weight 400
+  src: url('/static/webFonts/RaisonnePro/RaisonnePro-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'RaisonnePro';
+  font-style italic
+  font-weight 400
+  src: url('/static/webFonts/RaisonnePro/RaisonnePro-Oblique.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'RaisonnePro';
+  font-weight 700
+  src: url('/static/webFonts/RaisonnePro/RaisonnePro-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'RaisonnePro';
+  font-weight 900
+  src: url('/static/webFonts/RaisonnePro/RaisonnePro-Bold.ttf') format('truetype');
+}
 
 *
   scrollbar-width: thin
@@ -638,10 +663,10 @@ $tertiary = #F782AA
 body
   margin 0
   padding 0
-  background #FFEDD6
+  background #ffffff
 
 #app, button, input, textarea, select
-  font-family NeuzeitGro, 'Open Sans', 'Helvetica', Arial, sans-serif
+  font-family RaisonnePro, 'Open Sans', 'Helvetica', Arial, sans-serif
   font-size 100%
   line-height 1.5
 
@@ -774,6 +799,9 @@ popout-style(color)
 
 .main-header
   position relative
+  transition-duration .5s
+  transition-timing-function ease-in
+  transition-property all
 
   .header__logo
     position absolute
@@ -1060,7 +1088,7 @@ wave
   background #353535
 
 .songs
-  padding 3em 0 6em 0
+  padding 1.5em 0
   height 100%
   flex 1
   flex-basis 0
@@ -1074,6 +1102,10 @@ wave
   &__title
     font-weight bold
     color #2433d9
+
+.header-container
+  display flex
+  margin 0 auto
 
 .songs-container
   flex 1
@@ -1123,7 +1155,9 @@ wave
 // Misc
 //
 .hidden
-  display none
+  height 0
+  opacity 0
+
 
 // Playlist Specific
 .app--is-viewing-playlist

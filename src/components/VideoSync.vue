@@ -2,9 +2,17 @@
   <div class="video-sync">
     <div class="wrap">
       <div class="interact-cards">
-        <label class="interact-card interact-card--hoverable" v-show="!isPlayable">
-          <span class="interact-card__title"><i class="material-icons">publish</i>Video Sync</span>
-          <span class="interact-card__hover-content">Sync your videos and test out songs. Your videos will not be saved or uploaded anywhere.</span>
+        <label
+          class="interact-card interact-card--hoverable"
+          v-show="!isPlayable"
+        >
+          <span class="interact-card__title"
+            ><i class="material-icons">publish</i>Video Sync</span
+          >
+          <span class="interact-card__hover-content"
+            >Sync your videos and test out songs. Your videos will not be saved
+            or uploaded anywhere.</span
+          >
           <input
             class="file-input"
             type="file"
@@ -15,22 +23,46 @@
         </label>
         <div class="interact-card interact-card--video" v-show="isPlayable">
           <video class="video" ref="video"></video>
-          <div class="video-restart" v-show="isPlayable" @click="restartVideoFromBeginning"></div>
-          <div class="interact-card__notice"><span @click="resetVideo">Back to Search</span></div>
+          <div
+            class="video-restart"
+            v-show="isPlayable"
+            @click="restartVideoFromBeginning"
+          ></div>
+          <div class="interact-card__notice">
+            <span @click="resetVideo">Back to Search</span>
+          </div>
         </div>
         <div class="interact-card interact-card--tertiary">
           <div class="volume-control">
-            <div class="volume-control__title"><i class="material-icons">audiotrack</i>Music</div>
+            <div class="volume-control__title">
+              <i class="material-icons">audiotrack</i>Music
+            </div>
             <div class="volume-control__slider">
               <i class="material-icons">volume_up</i>
-              <input type="range" min="0" max="100" step="1" v-model="audioVolume" @change.prevent="setRangeBg">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                v-model="audioVolume"
+                @change.prevent="setRangeBg"
+              />
             </div>
           </div>
           <div class="volume-control">
-            <div class="volume-control__title"><i class="material-icons">movie</i>Video</div>
+            <div class="volume-control__title">
+              <i class="material-icons">movie</i>Video
+            </div>
             <div class="volume-control__slider">
               <i class="material-icons">volume_up</i>
-              <input type="range" min="0" max="100" step="1" v-model="volume" @change.prevent="setRangeBg">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                v-model="volume"
+                @change.prevent="setRangeBg"
+              />
             </div>
           </div>
         </div>
@@ -40,95 +72,102 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
-import { $bus } from './EventBus.js'
+import { mapState, mapActions } from "vuex";
+import { $bus } from "./EventBus.js";
 
 export default {
-  name: 'Search',
-  props: ['term'],
-  data () {
+  name: "Search",
+  props: ["term"],
+  data() {
     return {
       isVSVisible: false,
       isPlayable: false,
       volume: 100,
       audioVolume: 100,
       lastPlayingId: null
-    }
+    };
   },
   watch: {
-    playbackInfo (currentPlaybackInfo) {
-      if (currentPlaybackInfo.state === 'play' && currentPlaybackInfo.current !== this.lastPlayingId) {
+    playbackInfo(currentPlaybackInfo) {
+      if (
+        currentPlaybackInfo.state === "play" &&
+        currentPlaybackInfo.current !== this.lastPlayingId
+      ) {
         // reset video to beginning every time a new song is played
-        this.lastPlayingId = currentPlaybackInfo.current
-        this.videoNode.currentTime = 0
+        this.lastPlayingId = currentPlaybackInfo.current;
+        this.videoNode.currentTime = 0;
       }
-      this.videoNode[currentPlaybackInfo.state]()
+      this.videoNode[currentPlaybackInfo.state]();
     },
-    volume () {
-      this.setVolume()
+    volume() {
+      this.setVolume();
     },
-    audioVolume (vol) {
-      $bus.$emit('setAudioVolume', vol)
+    audioVolume(vol) {
+      $bus.$emit("setAudioVolume", vol);
     }
   },
-  mounted () {
-  },
+  mounted() {},
   computed: {
-    ...mapState(['playbackInfo']),
+    ...mapState(["playbackInfo"]),
 
-    videoNode () {
-      return this.$refs['video']
+    videoNode() {
+      return this.$refs["video"];
     }
   },
   methods: {
-    ...mapActions(['setPlaybackInfo']),
+    ...mapActions(["setPlaybackInfo"]),
 
     // toggle video sync widget visibility
-    showVS () {
-      this.isVSVisible = true
+    showVS() {
+      this.isVSVisible = true;
     },
 
     // load video from file
-    loadVideo (e) {
-      const file = e.target.files[0]
-      let type = file.type
-      let canPlay = type.includes('video/') || this.videoNode.canPlayType(type)
+    loadVideo(e) {
+      const file = e.target.files[0];
+      let type = file.type;
+      let canPlay = type.includes("video/") || this.videoNode.canPlayType(type);
       if (!canPlay) {
-        return false
+        return false;
       }
-      this.isPlayable = true
-      const fileURL = URL.createObjectURL(file)
-      this.videoNode.src = fileURL
+      this.isPlayable = true;
+      const fileURL = URL.createObjectURL(file);
+      this.videoNode.src = fileURL;
     },
 
-    restartVideoFromBeginning () {
-      this.videoNode.pause()
-      this.videoNode.currentTime = 0
-      this.videoNode.play()
+    restartVideoFromBeginning() {
+      this.videoNode.pause();
+      this.videoNode.currentTime = 0;
+      this.videoNode.play();
     },
 
-    resetVideo () {
-      this.videoNode.pause()
-      this.videoNode.removeAttribute('src')
-      this.videoNode.load()
-      this.isPlayable = false
+    resetVideo() {
+      this.videoNode.pause();
+      this.videoNode.removeAttribute("src");
+      this.videoNode.load();
+      this.isPlayable = false;
     },
 
-    setVolume () {
-      if (!this.$refs['video']) return false
-      this.$refs['video'].volume = this.volume / 100
+    setVolume() {
+      if (!this.$refs["video"]) return false;
+      this.$refs["video"].volume = this.volume / 100;
     },
 
-    setRangeBg (e) {
-      const el = e.target
-      const val = ((el.value - el.min) / (el.max - el.min)).toFixed(2) * 100
-      el.style.background = 'linear-gradient(to right, #F782AA 0%, ' +
-        '#F782AA ' + val + '%, ' +
-        '#F782AA80 ' + val + '%, ' +
-        '#F782AA80 100%)'
+    setRangeBg(e) {
+      const el = e.target;
+      const val = ((el.value - el.min) / (el.max - el.min)).toFixed(2) * 100;
+      el.style.background =
+        "linear-gradient(to right, #F782AA 0%, " +
+        "#F782AA " +
+        val +
+        "%, " +
+        "#F782AA80 " +
+        val +
+        "%, " +
+        "#F782AA80 100%)";
     }
   }
-}
+};
 </script>
 
 <style lang="stylus" scoped>
@@ -141,7 +180,6 @@ label.interact-card
 
 .video-sync
   text-align center
-  margin 2em 0 0
 
 .video-restart
   position absolute

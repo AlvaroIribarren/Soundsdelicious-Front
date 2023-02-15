@@ -1,9 +1,16 @@
 <template>
   <div class="sidebar-container" :class="{ 'is-active': !!selectedFilter }">
-    <div class="sidebar" :class="{ 'is-viewing-playlist': isViewingPlaylist  }">
-      <router-link to="/" class="logo" v-if="isViewingPlaylist"><img src="/static/Untitled-1.png" alt=""></router-link>
+    <div class="sidebar" :class="{ 'is-viewing-playlist': isViewingPlaylist }">
+      <router-link to="/" class="logo" v-if="isViewingPlaylist"
+        ><img src="/static/Untitled-1.png" alt=""
+      /></router-link>
 
-      <Search ref="search" :term="term" @updateTerm="updateTerm" v-show="!isViewingPlaylist" />
+      <Search
+        ref="search"
+        :term="term"
+        @updateTerm="updateTerm"
+        v-show="!isViewingPlaylist"
+      />
       <div class="filter-container m-hide" v-show="!isViewingPlaylist">
         <div class="tabs">
           <div
@@ -12,18 +19,29 @@
             v-for="(name, filter) in namedFilters"
             @click="selectFilter(filter)"
             :key="filter"
-          >{{ name }}</div>
+          >
+            {{ name }}
+          </div>
         </div>
 
-        <div class="filter-text" v-show="formattedSelections && !isViewingPlaylist">
-          <strong>Selected:</strong> {{ formattedSelections }} / <a href="#" @click.prevent="clearAll()">Clear</a>
+        <div
+          class="filter-text"
+          v-show="formattedSelections && !isViewingPlaylist"
+        >
+          <strong>Selected:</strong> {{ formattedSelections }} /
+          <a href="#" @click.prevent="clearAll()">Clear</a>
         </div>
 
         <auth />
-        <div class="tab" @click="$emit('openContact')"><i class="material-icons">chat_bubble</i> Get in Touch</div>
+        <div class="tab" @click="$emit('openContact')">
+          <i class="material-icons">chat_bubble</i> Get in Touch
+        </div>
       </div>
     </div>
-    <div class="filter-data-holder" v-show="!!selectedFilter && !isViewingPlaylist">
+    <div
+      class="filter-data-holder"
+      v-show="!!selectedFilter && !isViewingPlaylist"
+    >
       <!--
         Each filter requires one box of filterDatas
       -->
@@ -69,7 +87,8 @@
             :state="filterSet[filter][filterData]"
             @checkUpdate="checkUpdate(filterData, filter)"
             v-show="selectedFilter == filter"
-            :key="filterData" />
+            :key="filterData"
+          />
         </template>
       </div>
     </div>
@@ -77,20 +96,27 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import Search from './Search'
-import FilterData from './FilterData'
-import Auth from '@/components/Auth'
+import Vue from "vue";
+import Search from "./Search";
+import FilterData from "./FilterData";
+import Auth from "@/components/Auth";
 
-window.Vue = Vue
+window.Vue = Vue;
 
 export default {
-  name: 'Sidebar',
-  props: ['filters', 'filterSet', 'filterSelections', 'namedFilters', 'term', 'isViewingPlaylist'],
-  data () {
+  name: "Sidebar",
+  props: [
+    "filters",
+    "filterSet",
+    "filterSelections",
+    "namedFilters",
+    "term",
+    "isViewingPlaylist"
+  ],
+  data() {
     return {
-      selectedFilter: ''
-    }
+      selectedFilter: ""
+    };
   },
   components: {
     Search,
@@ -98,43 +124,53 @@ export default {
     FilterData
   },
   computed: {
-    formattedSelections () {
-      return this.filters.map(filter => {
-        return this.filterSelections[filter]
-        .map(filterData => `${filterData} (${this.namedFilters[filter]})`)
-        .join(', ')
-      })
-      .filter(data => !!data)
-      .join(', ')
+    formattedSelections() {
+      return this.filters
+        .map(filter => {
+          return this.filterSelections[filter]
+            .map(filterData => `${filterData} (${this.namedFilters[filter]})`)
+            .join(", ");
+        })
+        .filter(data => !!data)
+        .join(", ");
     }
   },
   methods: {
-    checkUpdate (filterData, filter) {
-      this.$emit('checkUpdate', filterData, filter)
+    checkUpdate(filterData, filter) {
+      this.$emit("checkUpdate", filterData, filter);
     },
-    selectFilter (filter) {
-      if (this.selectedFilter === filter) { this.selectedFilter = '' } else { this.selectedFilter = filter }
-    },
-    isSelectedFilter (filter) {
-      return this.selectedFilter === filter
-    },
-    clearAll () {
-      this.$emit('clearAll')
-    },
-    updateTerm (term) {
-      this.$emit('updateTerm', term)
-    },
-    clearSearch () {
-      this.$refs.search.clearSearch()
-    },
-    sortFilterSet (filter) {
-      if (this.filterSet[filter] && ['genre', 'primary_keywords'].includes(filter)) {
-        return Object.keys(this.filterSet[filter]).filter(k => !!k).sort()
+    selectFilter(filter) {
+      if (this.selectedFilter === filter) {
+        this.selectedFilter = "";
+      } else {
+        this.selectedFilter = filter;
       }
-      return this.filterSet[filter] ? Object.keys(this.filterSet[filter]) : []
+    },
+    isSelectedFilter(filter) {
+      return this.selectedFilter === filter;
+    },
+    clearAll() {
+      this.$emit("clearAll");
+    },
+    updateTerm(term) {
+      this.$emit("updateTerm", term);
+    },
+    clearSearch() {
+      this.$refs.search.clearSearch();
+    },
+    sortFilterSet(filter) {
+      if (
+        this.filterSet[filter] &&
+        ["genre", "primary_keywords"].includes(filter)
+      ) {
+        return Object.keys(this.filterSet[filter])
+          .filter(k => !!k)
+          .sort();
+      }
+      return this.filterSet[filter] ? Object.keys(this.filterSet[filter]) : [];
     }
   }
-}
+};
 </script>
 
 <style lang="stylus">
@@ -204,9 +240,13 @@ export default {
   i
     font-size 16px !important
 
-  &:hover, &.active
-    border-color #FED6A5
-    background #FED6A5
+  &:hover
+    background rgba(36, 51, 217, 0.3)
+
+  &.active
+    border-color #2433D9
+    background #2433D9
+    color white
 
 .filter-data-holder
   opacity 0

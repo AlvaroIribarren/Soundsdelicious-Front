@@ -499,10 +499,32 @@ export default {
     /**
      * Smooth scroll
      */
+    scrollTo(element, duration) {
+      var start = window.pageYOffset;
+      var end = element.offsetTop;
+      var distance = end - start;
+      var startTime = new Date().getTime();
+
+      function easeInOutQuad(time, start, distance, duration) {
+        time /= duration / 2;
+        if (time < 1) return (distance / 2) * time * time + start;
+        time--;
+        return (-distance / 2) * (time * (time - 2) - 1) + start;
+      }
+
+      function animation() {
+        var time = new Date().getTime() - startTime;
+        var newPosition = easeInOutQuad(time, start, distance, duration);
+        window.scrollTo(0, newPosition);
+        if (time < duration) requestAnimationFrame(animation);
+      }
+
+      requestAnimationFrame(animation);
+    },
+
     scrollToApp() {
-      document.querySelector(".page-container").scrollIntoView({
-        behavior: "smooth"
-      });
+      const target = document.querySelector(".page-container");
+      this.scrollTo(target, 1000);
       this.showHeader = false;
     },
 
@@ -854,16 +876,16 @@ popout-style(color)
     overflow hidden
 
     video
-      width auto
+      width 100%
       display block
+      object-fit cover
       margin 0
       position absolute
       top 0
       bottom 0
+      left 0
+      right 0
       height 100%
-      left 50%
-      transform translateX(-50%)
-
 
 .lbtn
   border-radius 3em !important
@@ -1156,7 +1178,6 @@ wave
 //
 .hidden
   height 0
-  opacity 0
 
 
 // Playlist Specific

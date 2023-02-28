@@ -131,13 +131,13 @@
     <KeyInput />
 
     <Loading :active.sync="meta.isLoadingZip" />
-    <div class="music-player" v-if="this.actualPlayingSong">
+    <!--<div class="music-player" v-if="this.actualPlayingSong">
       <music-player
         :song="this.actualPlayingSong"
         :wavePlaying="this.actualPlayingWave"
         :vol="audioVolume"
       />
-    </div>
+    </div>-->
   </div>
 </template>
 

@@ -3,12 +3,12 @@
     <div class="player">
       <div class="play-pause">
         <div class="icon" ref="playButton" @click="triggerPlayPause()">
-          <div class="i-play">
+          <div v-show="!meta.isPlaying" class="i-play">
             <i class="material-icons">play_arrow</i>
           </div>
-          <!-- <div v-show="meta.isPlaying" class="i-pause">
+          <div v-show="meta.isPlaying" class="i-pause">
             <i class="material-icons">pause</i>
-          </div> -->
+          </div>
         </div>
       </div>
       <div class="header">
@@ -22,7 +22,7 @@
         <div>{{ song.primary_keywords.slice(0, 3).join(", ") }}</div>
       </div>
       <div :class="'wave-' + song._id" class="wave"></div>
-      <div class="duration" v-if="meta.duration != 0">{{ meta.duration }}</div>
+      <!--<div class="duration" v-if="meta.duration != 0">{{ meta.duration }}</div>-->
       <div class="interact">
         <template v-if="!isViewingPlaylist">
           <a
@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 import { $bus } from "./EventBus.js";
 import { BDropdown } from "bootstrap-vue";
 import wavesurfer from "wavesurfer.js";
@@ -151,7 +151,7 @@ export default {
   mounted() {
     this.wave = this.createTrack();
     this.loadTrack();
-    // this.$refs.playButton.addEventListener('mouseover', this.loadTrackInMemory)
+    this.$refs.playButton.addEventListener("mouseover", this.loadTrackInMemory);
   },
   unmounted() {
     this.$refs.playButton.removeEventListener(
@@ -194,20 +194,20 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["setPlaybackInfo"]),
+
     createTrack() {
       return wavesurfer.create({
         container: ".wave-" + this.song._id,
         backend: "MediaElement",
         waveColor: "#dbe6e8",
-        progressColor: "#dbe6e8",
+        progressColor: "#2433D9",
+        cursorColor: "#2433D9",
         backgroundColor: "transparent",
         barWidth: 2,
         height: 26,
-        hideCursor: true,
-        cursorWidth: 0,
-        fillParent: true,
-        normalize: true,
-        interact: false
+        cursorWidth: 2,
+        fillParent: true
       });
     },
 
@@ -254,13 +254,16 @@ export default {
     },
 
     triggerPlayPause() {
-      // if (this.meta.isPlaying) {
-      //   this.setPlaybackInfo({ state: 'pause', current: this.song.num_id })
-      // } else {
-      //   this.setPlaybackInfo({ state: 'play', current: this.song.num_id })
-      // }
-      this.meta.isPlaying = !this.meta.isPlaying;
-      this.emitPlaySong();
+      if (this.meta.isPlaying) {
+        this.setPlaybackInfo({ state: "pause", current: this.song.num_id });
+      } else {
+        this.setPlaybackInfo({ state: "play", current: this.song.num_id });
+      }
+      // this.meta.isPlaying = !this.meta.isPlaying;
+      // this.emitPlaySong();
+
+      if (this.isPlaying) this.pause();
+      else this.play();
     },
 
     play() {

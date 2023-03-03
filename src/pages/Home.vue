@@ -731,13 +731,17 @@ popout-style(color)
   color color
 
 .button--popout
+  display flex
+  align-items center
+  justify-content center
   color #36936d
-  background #f7d7b3
+  background #fff
   popout-style @color
   font-weight 900
-  font-size 1.25em
-  padding 0 3em 0 0 !important
+  font-size 1.375em
+  padding 1.75em 3.5em
   line-height 1.1
+  margin 0.27em 0 0.25em 0
   outline none
 
   &:hover, &:focus
@@ -1127,6 +1131,8 @@ wave
 
 .header-container
   display flex
+  width 90%
+  max-width 80em
   margin 0 auto
 
 .songs-container

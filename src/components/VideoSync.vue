@@ -1,6 +1,6 @@
 <template>
   <div class="video-sync">
-    <div class="wrap">
+    <div>
       <div class="interact-cards">
         <label
           class="interact-card interact-card--hoverable"

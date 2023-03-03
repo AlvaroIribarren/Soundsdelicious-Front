@@ -739,7 +739,8 @@ popout-style(color)
   popout-style @color
   font-weight 900
   font-size 1.375em
-  padding 1.75em 3.5em
+  padding 1.75em 1em
+  min-width 12em
   line-height 1.1
   margin 0.27em 0 0.25em 0
   outline none
@@ -753,7 +754,6 @@ popout-style(color)
     display inline-block
 
   i
-    margin 0 2rem 0 0
     transform translate(-.1em, .3em)
     font-size 1.5em !important
 

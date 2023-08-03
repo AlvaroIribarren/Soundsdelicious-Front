@@ -28,41 +28,67 @@
             v-show="isPlayable"
             @click="restartVideoFromBeginning"
           ></div>
-          <div class="interact-card__notice">
-            <span @click="resetVideo">Back to Search</span>
-          </div>
         </div>
-        <div class="interact-card interact-card--tertiary">
-          <div class="volume-control">
-            <div class="volume-control__title">
-              <i class="material-icons">audiotrack</i>Music
+        <div style="display: flex; flex-direction: column;">
+          <div class="interact-card interact-card--tertiary">
+            <div class="volume-control">
+              <div class="volume-control__title">
+                <i class="material-icons">audiotrack</i>Music
+              </div>
+              <div class="volume-control__slider">
+                <i class="material-icons">volume_up</i>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  v-model="audioVolume"
+                  @change.prevent="setRangeBg"
+                />
+              </div>
             </div>
-            <div class="volume-control__slider">
-              <i class="material-icons">volume_up</i>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                v-model="audioVolume"
-                @change.prevent="setRangeBg"
-              />
+            <div class="volume-control">
+              <div class="volume-control__title">
+                <i class="material-icons">movie</i>Video
+              </div>
+              <div class="volume-control__slider">
+                <i class="material-icons">volume_up</i>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  v-model="volume"
+                  @change.prevent="setRangeBg"
+                />
+              </div>
             </div>
           </div>
-          <div class="volume-control">
-            <div class="volume-control__title">
-              <i class="material-icons">movie</i>Video
+          <div
+            class="interact-card interact-card--tertiary"
+            v-show="isPlayable"
+            style="display: flex; padding-left: 2.5em; padding-right: 2.5em;"
+          >
+            <div
+              v-show="!syncExportMessage"
+              style="display: flex; justify-content: space-between; width: 100%;"
+            >
+              <button class="sync-button" @click="resetVideo">
+                Remove video
+              </button>
+              <button
+                class="sync-button"
+                @click="exportSomeSyncedVideos"
+                v-bind:disabled="songsToSync.length === 0"
+              >
+                Export synced video(s)
+              </button>
+              <button class="sync-button" @click="exportAllSyncedVideos">
+                Batch Export
+              </button>
             </div>
-            <div class="volume-control__slider">
-              <i class="material-icons">volume_up</i>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                v-model="volume"
-                @change.prevent="setRangeBg"
-              />
+            <div v-show="syncExportMessage">
+              <span class="sync-export-message">{{ syncExportMessage }}</span>
             </div>
           </div>
         </div>
@@ -74,17 +100,21 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import { $bus } from "./EventBus.js";
+import axios from "axios";
+import { config } from "../config";
 
 export default {
   name: "Search",
-  props: ["term"],
+  props: ["term", "songs", "songsToSync"],
   data() {
     return {
+      syncExportMessage: "",
       isVSVisible: false,
       isPlayable: false,
       volume: 100,
       audioVolume: 100,
-      lastPlayingId: null
+      lastPlayingId: null,
+      videoToUpload: null
     };
   },
   watch: {
@@ -133,6 +163,8 @@ export default {
       this.isPlayable = true;
       const fileURL = URL.createObjectURL(file);
       this.videoNode.src = fileURL;
+      this.videoToUpload = file;
+      this.$emit("setVideoSyncActive", true);
     },
 
     restartVideoFromBeginning() {
@@ -146,6 +178,72 @@ export default {
       this.videoNode.removeAttribute("src");
       this.videoNode.load();
       this.isPlayable = false;
+      this.$emit("setVideoSyncActive", false);
+    },
+
+    async exportSyncedVideos(songs) {
+      this.syncExportMessage = "Modifiying video's volume...";
+      const formData = new FormData();
+      formData.append(
+        "file",
+        new Blob([this.videoToUpload], { type: "video/mp4" }),
+        "video.mp4"
+      );
+      formData.append("volume", this.volume / 100);
+      const videoRes = await axios.post(
+        `${config.VIDEOSYNC_URL}/video/volume/video`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }
+      );
+      for (const song of songs) {
+        this.syncExportMessage = `Modifying  ${song.title} volume...`;
+        await axios.post(`${config.VIDEOSYNC_URL}/video/volume/audio`, {
+          file: {
+            name: encodeURI(`${song.title}.mp3`),
+            source: encodeURI(
+              `https://${config.API_URL}/songs/${song.title}/${song.title}.mp3`
+            )
+          },
+          volume: this.audioVolume / 100,
+          videoFolder: videoRes.data.videoFolder
+        });
+
+        this.syncExportMessage = `Combining  ${song.title} with video...`;
+        const muxRes = fetch(`${config.VIDEOSYNC_URL}/video/mux`, {
+          method: "POST",
+          body: JSON.stringify({
+            videoFolder: videoRes.data.videoFolder,
+            trackName: encodeURI(`${song.title}.mp3`)
+          }),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+          .then(res => res.blob())
+          .then(blob => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", "output.mp4");
+            document.body.appendChild(link);
+            link.click();
+          })
+          .catch(err => {
+            console.warn(err);
+          });
+      }
+      this.syncExportMessage = "";
+    },
+
+    async exportSomeSyncedVideos() {
+      await this.exportSyncedVideos(this.songsToSync);
+    },
+
+    async exportAllSyncedVideos() {
+      await this.exportSyncedVideos(this.songs);
     },
 
     setVolume() {
@@ -181,6 +279,9 @@ label.interact-card
 .video-sync
   text-align center
 
+.sync-export-message
+  font-weight bold
+
 .video-restart
   position absolute
   cursor pointer
@@ -201,6 +302,22 @@ label.interact-card
 
 .volume-control
   font-weight bold
+
+.sync-button
+  all unset
+  cursor pointer
+  padding .5em .75em
+  color #F782AA
+  font-weight bold
+  font-size 20px
+
+  &:hover
+    color #F22C71
+
+  &:disabled
+    opacity .5
+    cursor not-allowed
+
 
 .volume-control__slider
   display flex

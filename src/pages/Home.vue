@@ -54,7 +54,11 @@
 
       <div class="main-content">
         <div class="header-container">
-          <video-sync />
+          <video-sync
+            :songs="paginatedSelectedSongs"
+            :songsToSync="songsToSync"
+            @setVideoSyncActive="setVideoSyncActive"
+          />
           <Playlist
             :playlist="playlist"
             ref="Playlist"
@@ -74,10 +78,13 @@
                 :vol="audioVolume"
                 :songsLoaded="songsLoaded"
                 :actualPlayingSong="actualPlayingSong"
+                :videoSyncActive="isVideoSyncActive"
                 @playlistAdd="playlistAdd"
                 @playlistRemove="playlistRemove"
                 @songsLoadedAdd="songsLoadedAdd"
                 @selectedSongForPlaying="selectedSongForPlaying"
+                @addSongToSync="addSongToSync"
+                @removeSongFromSync="removeSongFromSync"
               />
               <button
                 @click="updateSongsNum"
@@ -89,13 +96,13 @@
               <div v-if="selectedSongs.length === 0">
                 <h3>No matching results found</h3>
               </div>
-            </div>
-            <div class="downloader" v-show="isViewingPlaylist">
-              <span @click.prevent="downloadAllSelected('mp3')"
-                >Download<br />All<br /><i class="material-icons"
-                  >file_download</i
-                ></span
-              >
+              <div class="downloader" v-show="isViewingPlaylist">
+                <span @click.prevent="downloadAllSelected('mp3')"
+                  >Download<br />All<br /><i class="material-icons"
+                    >file_download</i
+                  ></span
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -187,6 +194,8 @@ export default {
       actualPlayingWave: "",
       actualPlayingSong: null,
       audioVolume: 1,
+      isVideoSyncActive: false,
+      songsToSync: [],
       content: {
         faq: ""
       },
@@ -494,6 +503,23 @@ export default {
     },
     playlistRemove(shortId) {
       this.playlist.splice(this.playlist.indexOf(shortId), 1);
+    },
+
+    /**
+     * Add/remove song to sync list
+     */
+    addSongToSync(song) {
+      if (!this.songsToSync.includes(song)) {
+        this.songsToSync.push(song);
+      }
+    },
+
+    removeSongFromSync(song) {
+      this.songsToSync.splice(this.songsToSync.indexOf(song), 1);
+    },
+
+    setVideoSyncActive(active) {
+      this.isVideoSyncActive = active;
     },
 
     /**

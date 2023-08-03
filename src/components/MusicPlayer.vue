@@ -116,7 +116,7 @@ export default {
       meta: {
         playedOnce: false,
         isDownloadDropVisible: false,
-        songsDir: `//${config.API_URL}/songs`,
+        songsDir: `https://${config.API_URL}/songs`,
         currentDownload: {
           wav: "",
           mp3: ""

@@ -16,7 +16,7 @@ import { config } from "./config";
 Vue.router = router;
 Vue.use(VueRouter);
 
-const apiRoot = `//${config.API_URL}`;
+const apiRoot = `https://${config.API_URL}`;
 
 Vue.use(VueAxios, axios);
 Vue.axios.defaults.baseURL = apiRoot;

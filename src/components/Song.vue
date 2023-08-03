@@ -1,6 +1,13 @@
 <template>
   <div class="song">
     <div class="player">
+      <div v-show="videoSyncActive">
+        <input
+          type="checkbox"
+          class="video-sync-checkbox"
+          @change="onCheckboxChange"
+        />
+      </div>
       <div class="play-pause">
         <div class="icon" ref="playButton" @click="triggerPlayPause()">
           <div v-show="!meta.isPlaying" class="i-play">
@@ -107,6 +114,10 @@ export default {
     songsLoaded: {
       type: Array,
       required: true
+    },
+    videoSyncActive: {
+      type: Boolean,
+      required: true
     }
   },
   components: {
@@ -119,7 +130,7 @@ export default {
         playedOnce: false,
         isPlaying: false,
         isDownloadDropVisible: false,
-        songsDir: `//${config.API_URL}/songs`,
+        songsDir: `https://${config.API_URL}/songs`,
         currentDownload: {
           wav: "",
           mp3: ""
@@ -331,6 +342,14 @@ export default {
 
     emitPlaySong() {
       this.$emit("selectedSongForPlaying", this.song, this.wave);
+    },
+
+    onCheckboxChange(checked) {
+      if (checked.target.checked) {
+        this.$emit("addSongToSync", this.song);
+      } else {
+        this.$emit("removeSongFromSync", this.song);
+      }
     }
   }
 };
@@ -341,6 +360,9 @@ export default {
   position relative
   padding .75em 0 .5em
   border-bottom 2px solid #ccc7c0
+
+.video-sync-checkbox
+  transform translate(0, -5px)
 
 .title,
 .artist

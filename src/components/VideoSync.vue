@@ -227,7 +227,7 @@ export default {
           .then(blob => {
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", "output.mp4");
+            link.setAttribute("download", `${song.title}.mp4`);
             document.body.appendChild(link);
             link.click();
           })
